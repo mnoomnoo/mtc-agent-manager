@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -6,9 +8,12 @@ from app.api.routes.settings_route import router as settings_router
 
 app = FastAPI(title="MTConnect Agent Config Manager")
 
+_cors_default = "http://localhost:5173,http://localhost:4173"
+_cors_origins = os.getenv("ALLOWED_ORIGINS", _cors_default).split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:4173"],
+    allow_origins=_cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

@@ -43,6 +43,7 @@ class UpdateDescriptionRequest(BaseModel):
 
 class SettingsModel(BaseModel):
     configs_root: str
+    locked: bool = False
 
 
 class MoveRootRequest(BaseModel):

@@ -1,8 +1,9 @@
 import json
+import os
 from pathlib import Path
 
 SETTINGS_FILE = Path(__file__).parent.parent / "settings.json"
-DEFAULT_ROOT = str(Path.home() / "Documents" / "mtc-configs")
+DEFAULT_ROOT = os.getenv("CONFIGS_ROOT", str(Path.home() / "Documents" / "mtc-configs"))
 
 
 def load_settings() -> dict:

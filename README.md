@@ -37,42 +37,47 @@ This app lets you maintain a library of these config sets and:
 
 ## Requirements
 
-- **Node.js** 18+ and **npm**
-- **Python** 3.11+
 - **Docker** with the Compose plugin (`docker compose`)
 
 ---
 
-## Setup
-
-### 1. Clone / navigate to the project
+## Running with Docker (recommended)
 
 ```bash
-cd /path/to/mtc-agent-manager
+docker compose up --build
 ```
 
-### 2. Install frontend dependencies
+Then open **http://localhost** in your browser.
+
+To stop:
+```bash
+docker compose down
+```
+
+### Config sets directory
+
+By default, the app looks for config sets in `~/Documents/mtc-configs` on the host. To use a different directory, set `CONFIGS_ROOT` before running:
 
 ```bash
-cd frontend
-npm install
-cd ..
+CONFIGS_ROOT=/path/to/your/configs docker compose up --build
 ```
 
-### 3. Create a Python virtual environment and install backend dependencies
-
-```bash
-cd backend
-python3 -m venv venv
-venv/bin/pip install -r requirements.txt
-cd ..
-```
+When `CONFIGS_ROOT` is set, the Settings page shows the path as read-only — change it by updating `docker-compose.yml` or the environment variable.
 
 ---
 
-## Running
+## Running locally (development)
 
-Use the included start script to launch both servers at once:
+**Requirements:** Node.js 18+, Python 3.11+
+
+### 1. Install dependencies
+
+```bash
+cd frontend && npm install && cd ..
+cd backend && python3 -m venv venv && venv/bin/pip install -r requirements.txt && cd ..
+```
+
+### 2. Start both servers
 
 ```bash
 ./start.sh
@@ -86,54 +91,16 @@ Then open **http://localhost:5173** in your browser.
 | Backend API | http://localhost:8000      |
 | API docs    | http://localhost:8000/docs |
 
-Press `Ctrl+C` to stop both servers.
-
-### Running servers individually
-
-**Backend:**
-```bash
-cd backend
-venv/bin/uvicorn app.main:app --reload --port 8000
-```
-
-**Frontend:**
-```bash
-cd frontend
-npm run dev
-```
-
----
-
-## Configuration
-
 ### Config sets root directory
 
-By default, the app looks for config sets in:
-
-```
-~/Documents/mtc-configs/
-```
-
-Each subdirectory inside that path is treated as a config set. Change this path any time via the **Settings** page in the UI.
-
-An example config set (`MTC-Agent-Config-stats`) is included at the default root so the dashboard is populated on first launch.
+By default the app uses `~/Documents/mtc-configs`. Change this any time via the **Settings** page in the UI.
 
 ### Migrating the library to a new location
 
-From the Settings page, click **Change** to browse to a new directory. You are then offered two choices:
+From the Settings page, click **Change** to browse to a new directory:
 
-- **Yes, move contents** — physically moves all config set subdirectories to the new path and updates the setting. The backend detects conflicts (a directory with the same name already exists at the destination) and aborts before moving anything.
-- **No, just update path** — updates the stored path without moving any files. Use this if you have already moved the directory manually or want to point the app at a pre-existing library.
-
-### Backend settings file
-
-The root directory path is persisted to `backend/settings.json`. You can edit it directly if needed (restart the backend to pick up manual changes):
-
-```json
-{
-  "configs_root": "/home/youruser/Documents/mtc-configs"
-}
-```
+- **Yes, move contents** — moves all config set subdirectories to the new path. Aborts if a name conflict is detected.
+- **No, just update path** — updates the stored path without moving files. Use this if you already moved the directory manually.
 
 ---
 
@@ -158,45 +125,6 @@ Each card has an inline **Edit** link next to the description. The text is saved
 ### Auto-refresh
 
 The dashboard and the editor page both poll for status every 10 seconds. Running/stopped badges update automatically without a manual refresh.
-
----
-
-## Project Structure
-
-```
-mtc-agent-manager/
-├── start.sh                    # Convenience script to run both servers
-│
-├── backend/
-│   ├── requirements.txt
-│   ├── settings.json           # Created on first run (configurable root path)
-│   └── app/
-│       ├── main.py             # FastAPI app + CORS
-│       ├── config.py           # Settings load/save
-│       ├── models.py           # Pydantic models
-│       ├── docker_utils.py     # docker compose subprocess helpers
-│       ├── templates.py        # Default file content for new config sets
-│       └── api/routes/
-│           ├── config_sets.py  # Config set endpoints
-│           └── settings_route.py
-│
-└── frontend/
-    └── src/
-        ├── api.ts              # Typed fetch wrapper for the backend
-        ├── toaster.tsx         # Chakra UI toast setup
-        ├── App.tsx             # Router shell
-        ├── components/
-        │   ├── Navbar.tsx
-        │   ├── ConfigSetCard.tsx
-        │   ├── NewConfigSetModal.tsx
-        │   ├── CopyModal.tsx
-        │   ├── DeleteDialog.tsx
-        │   └── MoveDialog.tsx  # Switch confirmation with compose log output
-        └── pages/
-            ├── Dashboard.tsx   # Config set card grid
-            ├── EditorPage.tsx  # File tree + CodeMirror editor
-            └── SettingsPage.tsx
-```
 
 ---
 
@@ -268,7 +196,9 @@ venv/bin/uvicorn app.main:app --reload --port 8000
 
 ### Frontend can't reach the backend
 
-The frontend targets `http://localhost:8000` as the API base URL. The backend CORS policy allows `localhost:5173` and `localhost:4173`. Both servers must be running on those exact ports.
+**Docker:** Nginx proxies `/api/*` to the backend container internally. If the backend is failing, check `docker compose logs backend`.
+
+**Local dev:** The frontend targets `http://localhost:8000`. The backend CORS policy allows `localhost:5173` and `localhost:4173`. Both servers must be running on those exact ports.
 
 ---
 
