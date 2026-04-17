@@ -1,4 +1,4 @@
-const BASE = "http://localhost:8000/api"
+const BASE = import.meta.env.VITE_API_BASE_URL ?? "/api"
 
 export interface ContainerInfo {
   name: string
@@ -31,6 +31,7 @@ export interface DockerResult {
 
 export interface Settings {
   configs_root: string
+  locked?: boolean
 }
 
 export interface BrowseResult {

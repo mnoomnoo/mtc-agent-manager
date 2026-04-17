@@ -122,12 +122,18 @@ export default function SettingsPage() {
           <Code fontSize="sm" flex={1} px={3} py={2} borderRadius="md" truncate>
             {settings?.configs_root ?? '—'}
           </Code>
-          <Button size="sm" variant="outline" colorPalette="blue" onClick={openDialog}>
-            Change
-          </Button>
+          {settings?.locked ? (
+            <Text fontSize="xs" color="gray.400" whiteSpace="nowrap">Managed by environment</Text>
+          ) : (
+            <Button size="sm" variant="outline" colorPalette="blue" onClick={openDialog}>
+              Change
+            </Button>
+          )}
         </Flex>
         <Text fontSize="xs" color="gray.400" mt={2}>
-          Each subdirectory inside this path is treated as a config set.
+          {settings?.locked
+            ? 'Set via CONFIGS_ROOT environment variable. Edit docker-compose.yml to change.'
+            : 'Each subdirectory inside this path is treated as a config set.'}
         </Text>
       </Box>
 
