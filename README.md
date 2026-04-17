@@ -1,6 +1,6 @@
 # MTConnect Agent Config Manager
 
-A web-based tool for managing multiple [MTConnect Agent](https://www.mtconnect.org/) deployment configurations. Switch between config sets with a single click — the app stops all currently running sets and starts the new one automatically.
+A web-based tool for managing multiple [MTConnect Agent](https://github.com/mtconnect/cppagent) deployment configurations. Switch between Agent configurations with a single click. The app stops the currently running Agent then starts a new one with a different configuration automatically.
 
 ---
 
